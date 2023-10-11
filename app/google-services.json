@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "74455921441",
+    "project_id": "art-note",
+    "storage_bucket": "art-note.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:74455921441:android:a06ce41b4009e0bb284460",
+        "android_client_info": {
+          "package_name": "com.example.ark_art"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCu1VE0TlJ9LFypa83WbHmw2JDZ82h2tvI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:74455921441:android:63a15fe0cce5bf78284460",
+        "android_client_info": {
+          "package_name": "com.example.ark_note"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCu1VE0TlJ9LFypa83WbHmw2JDZ82h2tvI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:74455921441:android:0ce0ea022ff31471284460",
+        "android_client_info": {
+          "package_name": "com.example.art"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCu1VE0TlJ9LFypa83WbHmw2JDZ82h2tvI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
