@@ -1,6 +1,8 @@
 package com.example.ark_art.ui.view.home
 
 import android.annotation.SuppressLint
+import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -20,6 +22,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -40,6 +44,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,29 +59,38 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.util.rangeTo
 import androidx.navigation.compose.rememberNavController
 import com.example.ark_art.R
+import com.example.ark_art.model.viewmodel.HomeViewModel
 import com.example.ark_art.navigation.navigation
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
+import com.example.ark_art.model.data.upload_Model
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun home(
-    navigateToPost : ()-> Unit
+    navigateToPost: () -> Unit,
+    viewModel: HomeViewModel = viewModel(),
 ){
-    val navController = rememberNavController()
+
+    var imageUris: MutableList<Uri> by remember{mutableStateOf(mutableListOf())}
+
+    val firestoreData by viewModel.storeCollections.collectAsState()
+    val storageUrl by viewModel.storageCollections.collectAsState()
+
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchCollection()
+        viewModel.fetchStorageCollections()
+    }
 
     Scaffold(
-        bottomBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.White)
-                    .height(50.dp),
-                content = {
-                    Text(text = "Bottom")
-                }
-            )
-        },
         floatingActionButton = {
             FloatingActionButton(
                 shape = RoundedCornerShape(40.dp),
@@ -85,53 +104,21 @@ fun home(
         },
         floatingActionButtonPosition = FabPosition.End,
         content = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                content =  {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight()
-                            .padding(4.dp),
-                        content = {
-                            item(
-                                content = {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(100.dp)
-                                            .background(Color.Gray),
-                                        content = {
-                                            Text(text = "status")
-                                        }
-                                    )
-                                }
-                            )
-                            items(
-                                count = 5,
-                                itemContent = {
-                                    contentHome()
-                                }
-                            )
-                        }
-                    )
+            LazyColumn{
+                items(imageUris){ uri ->
+                    AsyncImage(model = uri, contentDescription = null, modifier = Modifier.size(200.dp))
+
                 }
-            )
-
-            LaunchedEffect(
-                key1 = "",
-                block = {}
-            )
-
+            }
         }
     )
 }
 
 @Composable
-fun contentHome(){
+fun contentHome(
+    imageUrl : List<String>,
+    detail : (String)->Unit
+){
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -197,7 +184,7 @@ fun contentHome(){
                         modifier =  Modifier
                             .fillMaxWidth(),
                         content =  {
-                            horizontalPager()
+                            horizontalPager(imageUrl)
                             Row (
                                 modifier = Modifier
                                     .height(45.dp)
@@ -246,47 +233,57 @@ fun contentHome(){
                     Text(text = "10.10 AM")
                 }
             )
+            Text(text = "$detail")
         }
     )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun horizontalPager(){
-    val state = rememberPagerState {
-        +10
-    }
+fun horizontalPager(
+    images : List<String>,
+){
+    val state = rememberPagerState(
+        initialPage = 0,
+        pageCount = { images.size }
+    )
 
     val context = LocalContext.current
 
     HorizontalPager(
         modifier= Modifier
             .fillMaxWidth()
-            .height(400.dp),
+            .height(400.dp)
+            .background(Color.White),
         state = state,
-        pageContent = {page ->
+        pageContent = { page ->
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 0.2.dp, end = 0.2.dp),
-                contentAlignment = Alignment.Center,
-                content = {
-                    Image(
-                        modifier= Modifier
-                            .fillMaxSize()
-                            .fillMaxHeight()
-                            .clickable {
-                                Toast
-                                    .makeText(context, "content", Toast.LENGTH_SHORT)
-                                    .show()
-                            },
-                        contentScale= ContentScale.FillHeight,
-                        painter = painterResource(id = R.drawable.levi),
-                        contentDescription = "content image"
-                    )
-                }
-            )
+            val imageUrl = images.getOrNull(page)
+
+            imageUrl?.let { url->
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 0.2.dp, end = 0.2.dp),
+                    contentAlignment = Alignment.Center,
+                    content = {
+                        val painter = rememberAsyncImagePainter(imageUrl)
+                        Image(
+                            modifier= Modifier
+                                .fillMaxSize()
+                                .fillMaxHeight()
+                                .clickable {
+                                    Toast
+                                        .makeText(context, "content", Toast.LENGTH_SHORT)
+                                        .show()
+                                },
+                            contentScale= ContentScale.FillHeight,
+                            painter = painter,
+                            contentDescription = "content image"
+                        )
+                    }
+                )
+            }
         }
     )
 }

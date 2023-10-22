@@ -39,20 +39,25 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ark_art.R
+import com.example.ark_art.model.viewmodel.uploadViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun profile(){
+fun profile(
+){
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
     Scaffold(
-        modifier = Modifier.background(Color.Transparent)
+        modifier = Modifier
+            .background(Color.Transparent)
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .background(Color.Transparent),
                 title = {
                     Image(
@@ -94,7 +99,8 @@ fun profile(){
             LazyColumn(
                 modifier = Modifier
                     .padding(innerPadding)
-                    .fillMaxWidth().fillMaxHeight(),
+                    .fillMaxWidth()
+                    .fillMaxHeight(),
                 content = {
                     item(
                         content = {
