@@ -72,14 +72,14 @@ import com.example.ark_art.model.data.upload_Model
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "MutableCollectionMutableState")
 @Composable
 fun home(
     navigateToPost: () -> Unit,
     viewModel: HomeViewModel = viewModel(),
 ){
 
-    var imageUris: MutableList<Uri> by remember{mutableStateOf(mutableListOf())}
+    val imageUris: MutableList<Uri> by remember{mutableStateOf(mutableListOf())}
 
     val firestoreData by viewModel.storeCollections.collectAsState()
     val storageUrl by viewModel.storageCollections.collectAsState()
@@ -105,9 +105,11 @@ fun home(
         floatingActionButtonPosition = FabPosition.End,
         content = {
             LazyColumn{
+                item {
+
+                }
                 items(imageUris){ uri ->
                     AsyncImage(model = uri, contentDescription = null, modifier = Modifier.size(200.dp))
-
                 }
             }
         }
