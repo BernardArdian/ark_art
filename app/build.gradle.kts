@@ -79,4 +79,6 @@ dependencies {
 
     implementation ("com.google.accompanist:accompanist-pager:0.14.0")
     implementation ("com.google.accompanist:accompanist-pager-indicators:0.14.0")
+
+    implementation ("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
 }

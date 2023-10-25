@@ -27,6 +27,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -147,11 +148,12 @@ fun upload(
                         modifier = Modifier
                             .fillMaxWidth()
                             .focusRequester(focusRequester)
-                            .then(Modifier.padding(5.dp)),
+                            .then(Modifier.padding(5.dp))
+                            .background(Color.Transparent),
                         shape= RoundedCornerShape(0.dp),
-                        colors = TextFieldDefaults.textFieldColors(
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent
+                        colors = TextFieldDefaults.colors(
+                            focusedIndicatorColor = Color.White,
+                            unfocusedIndicatorColor = Color.Transparent,
                         ),
                         value = post.description.toString(),
                         onValueChange = { values ->
@@ -177,8 +179,8 @@ fun upload(
                                         AsyncImage(
                                             model = uri,
                                             modifier = Modifier
-                                                    .height(400.dp)
-                                                    .fillMaxWidth(),
+                                                .height(400.dp)
+                                                .fillMaxWidth(),
                                             contentScale = ContentScale.None,
                                             contentDescription = "content image"
                                         )
@@ -212,6 +214,7 @@ fun upload(
                                 val message = if (result) "Uploaded..." else "Failed to upload..."
                                 Log.d("LaunchedEffect", "Showing Toast message: $message")
                                 Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+
                             }
                         }
                     }

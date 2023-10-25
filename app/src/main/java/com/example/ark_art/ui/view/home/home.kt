@@ -10,6 +10,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.paddingFrom
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -28,12 +30,16 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Badge
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
@@ -57,6 +63,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.util.rangeTo
@@ -69,6 +76,7 @@ import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import com.example.ark_art.model.data.upload_Model
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 
@@ -78,19 +86,26 @@ fun home(
     navigateToPost: () -> Unit,
     viewModel: HomeViewModel = viewModel(),
 ){
-
     val imageUris: MutableList<Uri> by remember{mutableStateOf(mutableListOf())}
-
     val firestoreData by viewModel.storeCollections.collectAsState()
     val storageUrl by viewModel.storageCollections.collectAsState()
 
-
-    LaunchedEffect(Unit) {
+    LaunchedEffect(key1 = Unit, block = {
         viewModel.fetchCollection()
         viewModel.fetchStorageCollections()
-    }
+    })
 
     Scaffold(
+        topBar = {
+                 Column(
+                     modifier = Modifier
+                         .fillMaxWidth()
+                         .background(Color.White),
+                     content = {
+                         Text(text = "TopAppBar")
+                     }
+                 )
+        },
         floatingActionButton = {
             FloatingActionButton(
                 shape = RoundedCornerShape(40.dp),
@@ -104,21 +119,26 @@ fun home(
         },
         floatingActionButtonPosition = FabPosition.End,
         content = {
-            LazyColumn{
-                item {
+            LazyColumn(
+                modifier = Modifier.padding(top=15.dp),
+                content = {
 
+                    item(
+                        content = {
+                            contentHome(
+                                detail = {}
+                            )
+                        }
+                    )
                 }
-                items(imageUris){ uri ->
-                    AsyncImage(model = uri, contentDescription = null, modifier = Modifier.size(200.dp))
-                }
-            }
+            )
         }
     )
 }
 
 @Composable
 fun contentHome(
-    imageUrl : List<String>,
+    imageUrl : List<String> = emptyList(),
     detail : (String)->Unit
 ){
     Card(
@@ -245,9 +265,11 @@ fun contentHome(
 fun horizontalPager(
     images : List<String>,
 ){
+    val item = "https://firebasestorage.googleapis.com/v0/b/art-note.appspot.com/o/content_collection%2F01f148b1-a28b-4a05-b3b0-5ea2f8ddb962%2F2023-10-22%20%7C%7C%2019%3A53%3A29%2F2?alt=media&token=90ded0bc-37a9-4259-8850-a5fd34c8b0aa"
+
     val state = rememberPagerState(
         initialPage = 0,
-        pageCount = { images.size }
+        pageCount = { item.length }
     )
 
     val context = LocalContext.current
@@ -270,22 +292,29 @@ fun horizontalPager(
                     contentAlignment = Alignment.Center,
                     content = {
                         val painter = rememberAsyncImagePainter(imageUrl)
-                        Image(
+
+                        AsyncImage(
+                            model = painter,
                             modifier= Modifier
                                 .fillMaxSize()
                                 .fillMaxHeight()
                                 .clickable {
                                     Toast
-                                        .makeText(context, "content", Toast.LENGTH_SHORT)
+                                        .makeText(context, "", Toast.LENGTH_SHORT)
                                         .show()
                                 },
-                            contentScale= ContentScale.FillHeight,
-                            painter = painter,
-                            contentDescription = "content image"
+                            contentScale = ContentScale.FillHeight,
+                            contentDescription ="content Image"
                         )
                     }
                 )
             }
         }
     )
+}
+
+@Composable
+@Preview
+fun content(){
+    contentHome(detail = {})
 }

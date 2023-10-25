@@ -43,7 +43,7 @@ class Uploadrepository {
                 description,
                 ArrayList(
                     content.mapIndexed{ index,uri ->
-                        (index + 1).toString() + ": " +uri.toString()
+                        (index + 1).toString()+ " : " +uri.toString()
                     }
                 ),
                 it
