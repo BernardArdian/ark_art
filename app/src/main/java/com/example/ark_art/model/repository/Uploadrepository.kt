@@ -1,10 +1,13 @@
 package com.example.ark_art.model.repository
 
+import android.content.Context
 import android.net.Uri
+import android.util.Log
 import android.webkit.MimeTypeMap
+import android.widget.Toast
 import com.example.ark_art.model.POST_COLLECTION
 import com.example.ark_art.model.STORAGE_COLLECTION
-import com.example.ark_art.model.data.upload_Model
+import com.example.ark_art.model.data.apps_Model
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.Timestamp
@@ -12,16 +15,13 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.ktx.storageMetadata
-import com.google.type.Date
-import com.google.type.DateTime
+import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.ktx.storage
 import java.io.File
 import java.text.SimpleDateFormat
-import java.time.LocalDate
 import java.util.Locale
-import java.util.SimpleTimeZone
 import java.util.UUID
-
+import kotlin.math.log
 
 class Uploadrepository {
 
@@ -38,7 +38,7 @@ class Uploadrepository {
         val postId = UUID.randomUUID().toString()
 
         val post = timestamp?.let { it ->
-            upload_Model.user_post(
+            apps_Model.user_post(
                 id = postId,
                 description,
                 ArrayList(
@@ -49,7 +49,6 @@ class Uploadrepository {
                 it
             )
         }
-
         post?.let {
             firestoreDB.document(postId)
                 .set(it).addOnCompleteListener { result->
@@ -145,6 +144,41 @@ class Uploadrepository {
             onComplete(-1)
         }
     }
+
+    companion object{
+        fun uploadMultiContentToStorage(uri: Uri, context : Context, type : String){
+            val storage = Firebase.storage
+
+            val storageRef = storage.reference
+
+            val unique_image_name = UUID.randomUUID()
+            val spaceRef: StorageReference
+
+            if (type == "image"){
+                spaceRef = storageRef.child("$STORAGE_COLLECTION/$unique_image_name")
+            }else{
+                spaceRef = storageRef.child("videos/$unique_image_name.mp4")
+            }
+
+            val byteArray: ByteArray = context.contentResolver
+                .openInputStream(uri)
+                .use { it!!.readBytes() }
+
+            byteArray.let {
+                val uploadTask = spaceRef.putBytes(byteArray)
+                uploadTask.addOnFailureListener{
+                    Toast.makeText(context,"upload failed", Toast.LENGTH_SHORT).show()
+                }.addOnSuccessListener {
+                    Toast.makeText(
+                        context,
+                        "upload success",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
+
     // Fungsi untuk mengambil ekstensi file dari Uri gambar
     private fun getFileExtension(uri: Uri?): String {
         val file = uri?.path?.let { File(it) }

@@ -2,7 +2,7 @@ package com.example.ark_art.model.data
 
 import com.google.firebase.Timestamp
 
-sealed class upload_Model{
+sealed class apps_Model{
 
     sealed class authentication{
         data class SignIn(
@@ -33,5 +33,12 @@ sealed class upload_Model{
         val user_id: String = "",
         val to_id: String = "",
         val response: String = "",
+    )
+
+    data class Home_model(
+        val id : String = "",
+        val description : String = "",
+        val contentUrls : List<String>,
+        val timestamp: Timestamp?
     )
 }

@@ -4,26 +4,24 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.example.ark_art.model.viewmodel.uploadViewModel
-import com.example.ark_art.ui.view.component.upload
-import com.example.ark_art.ui.view.home.home
-import com.example.ark_art.ui.view.profile.profile
+import com.example.ark_art.ui.view.home.Home
+import com.example.ark_art.ui.view.home.home_component.Upload
+import com.example.ark_art.ui.view.profile.Profile
 
 fun NavGraphBuilder.main_page(
     navController: NavHostController,
 ) {
 
     navigation(
-        startDestination = nestedNav.HomeRoutes.home.name,
+        startDestination = nestedNav.HomeRoutes.Home.name,
         route=  nestedNav.NestedRoutes.Main.name
     ){
         composable(
-            route = nestedNav.HomeRoutes.home.name,
+            route = nestedNav.HomeRoutes.Home.name,
             exitTransition = {
                 slideOutHorizontally(
                     targetOffsetX = { fullWidth -> -fullWidth },
@@ -37,16 +35,16 @@ fun NavGraphBuilder.main_page(
                 )
             },
             content = {
-                home(
+                Home(
                     navigateToPost = {
-                        navController.navigate(nestedNav.HomeRoutes.post.name)
+                        navController.navigate(nestedNav.HomeRoutes.Post.name)
                     }
                 )
             }
         )
 
         composable(
-            route = nestedNav.HomeRoutes.post.name,
+            route = nestedNav.HomeRoutes.Post.name,
             enterTransition = {
                 slideInHorizontally(
                     initialOffsetX = { fullWidth -> fullWidth },
@@ -62,18 +60,18 @@ fun NavGraphBuilder.main_page(
 
             },
             content = {
-                upload(
+                Upload(
                     navToHomePage = {
-                        navController.navigate(nestedNav.HomeRoutes.home.name)
+                        navController.navigate(nestedNav.HomeRoutes.Home.name)
                     }
                 )
             }
         )
 
         composable(
-            route = nestedNav.HomeRoutes.profile.name,
+            route = nestedNav.HomeRoutes.Profile.name,
             content = {
-                profile()
+                Profile()
             }
         )
     }

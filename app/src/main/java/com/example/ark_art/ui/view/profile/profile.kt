@@ -1,5 +1,7 @@
 package com.example.ark_art.ui.view.profile
 
+import android.annotation.SuppressLint
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -12,43 +14,64 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.sharp.KeyboardArrowLeft
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabPosition
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import com.example.ark_art.R
-import com.example.ark_art.model.viewmodel.uploadViewModel
+import com.example.ark_art.model.viewmodel.HomeViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun profile(
+fun Profile(
+    //viewModel : HomeViewModel = HomeViewModel()
 ){
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+
+//    LaunchedEffect(
+//        key1 = viewModel.storageCollections,
+//        block = {
+//            viewModel.fetchStorageCollections()
+//        }
+//    )
 
     Scaffold(
         modifier = Modifier
@@ -57,13 +80,13 @@ fun profile(
         topBar = {
             LargeTopAppBar(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.Transparent),
+                    .fillMaxWidth(),
                 title = {
-                    Image(
-                        modifier = Modifier.fillMaxWidth(),
-                        painter = painterResource(id = R.drawable.backgroundprofile),
-                        contentDescription = ""
+                    Column(
+                        content = {
+                            Text(text = "TopBar")
+                            Text(text = "sample")
+                        }
                     )
                 },
                 navigationIcon = {
@@ -75,7 +98,7 @@ fun profile(
                             .padding(horizontal = 5.dp, vertical = 5.dp)
                             .background(Color.DarkGray, RoundedCornerShape(20.dp)),
                         tint= Color.Black,
-                        imageVector = Icons.Rounded.ArrowBack,
+                        imageVector = Icons.Sharp.KeyboardArrowLeft,
                         contentDescription = null
                     )
                 },
@@ -148,42 +171,15 @@ fun profile(
                                             Text(text = "details")
                                         }
                                     )
-                                    tabs()
                                 }
                             )
                         }
                     )
-                    items(
-                        count = 100,
-                        itemContent =  {
-                            Text(text = "count")
-                        }
-                    )
-                }
-            )
-        }
-    )
-}
-
-@Composable
-fun tabs(){
-    var state by remember {
-        mutableIntStateOf(0)
-    }
-
-    val title = listOf("tab 1","tab 2","tab 3")
-
-    Column(
-        modifier = Modifier,
-        content = {
-            TabRow(
-                selectedTabIndex =  state,
-                tabs = {
-                    title.forEachIndexed{index,item ->
-                        Tab(
-                            text = { Text(text = item) },
-                            selected = state == index,
-                            onClick = { state = index }
+                    item {
+                        profileTabsPage(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .fillMaxWidth()
                         )
                     }
                 }
@@ -192,8 +188,137 @@ fun tabs(){
     )
 }
 
+@SuppressLint("ComposableNaming")
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun profileTabsPage(
+    navHostController: NavHostController = NavHostController(context = LocalContext.current),
+    modifier: Modifier = Modifier
+){
+
+    val tabItem = listOf(
+        TabItem(Icons.Outlined.Menu,Icons.Filled.Menu),
+        TabItem(Icons.Outlined.FavoriteBorder,Icons.Filled.Favorite)
+    )
+
+    val pagerState = rememberPagerState(
+        initialPage = tabItem.lastIndex,
+        pageCount = {
+            tabItem.size
+        }
+    )
+
+    var selectedTebIndex by remember {
+        mutableIntStateOf(0)
+    }
+
+    val coroutineScope = rememberCoroutineScope()
+    
+    LaunchedEffect(
+        key1 = selectedTebIndex,
+        block = {
+            pagerState.animateScrollToPage(selectedTebIndex)
+        }
+    )
+
+    LaunchedEffect(
+        key1 = pagerState.currentPage,
+        key2 = pagerState.isScrollInProgress,
+        block = {
+            if (!pagerState.isScrollInProgress){
+                selectedTebIndex = pagerState.currentPage
+            }
+        }
+    )
+
+    PrimaryTabRow(
+        modifier = modifier,
+        selectedTabIndex =  selectedTebIndex,
+        indicator = {tabPositions: List<TabPosition> ->
+            val modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTebIndex])
+            Box(
+                modifier
+                    .fillMaxWidth()
+                    .height(5.dp)
+                    .background(
+                        Color.White,
+                        RoundedCornerShape(
+                            topStart = 16.dp,
+                            topEnd = 16.dp
+                        )
+                    )
+            )
+        },
+        tabs = {
+            tabItem.forEachIndexed{index,item ->
+                Tab(
+                    selected = selectedTebIndex == index,
+                    onClick = {
+                        selectedTebIndex = index
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(selectedTebIndex)
+                        }
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = (if (index == selectedTebIndex) item.selectedTabIcon else item.unselectedTabIcon) as ImageVector,
+                            contentDescription = null
+                        )
+                    }
+                )
+            }
+        }
+    )
+
+    HorizontalPager(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(),
+        state = pagerState,
+        pageContent = { page->
+            when(page){
+                0 -> PostPage()
+                1 -> SavePage()
+            }
+        }
+    )
+}
+
+@Composable
+fun PostPage(){
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(700.dp)
+            .padding(bottom = 10.dp)
+            .background(Color.Gray),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        content = {
+            Text(text = "Post Ui Page")
+        }
+    )
+}
+
+
+@Composable
+fun SavePage(){
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(700.dp)
+            .padding(bottom = 10.dp)
+            .background(Color.DarkGray),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        content = {
+            Text(text = "Saved Ui Page")
+        }
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
-fun profileView(){
-    profile()
+fun ProfileView(){
+    Profile()
 }

@@ -1,4 +1,4 @@
-package com.example.ark_art.ui.view.component
+package com.example.ark_art.ui.view.home.home_component
 
 import android.annotation.SuppressLint
 import android.net.Uri
@@ -23,11 +23,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -48,22 +46,20 @@ import androidx.compose.ui.unit.dp
 import com.example.ark_art.model.viewmodel.uploadViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.example.ark_art.model.data.upload_Model
+import com.example.ark_art.model.data.apps_Model
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun upload(
+fun Upload(
     viewModel: uploadViewModel = viewModel(),
     navToHomePage: () -> Unit,
 ){
-
     var post by remember {
         mutableStateOf(
-            upload_Model.user_post(
+            apps_Model.user_post(
                 id = "",
                 description = "",
                 contentCollection = ArrayList(),
@@ -90,7 +86,6 @@ fun upload(
             }
         }
     )
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         floatingActionButton = {
@@ -113,61 +108,66 @@ fun upload(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(55.dp)
-                            .padding(5.dp),
+                            .height(90.dp)
+                            .padding(top=5.dp, end = 5.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         content = {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = "",
-                                modifier = Modifier
-                                    .size(35.dp)
-                                    .clip(CircleShape)
-                                    .background(Color.Blue)
+                            DisposableEffect(
+                                key1 = Unit,
+                                effect = {
+                                    onDispose {
+                                        keyboardController?.hide()
+                                    }
+                                }
                             )
+                            LaunchedEffect(
+                                key1 = Unit,
+                                block = {
+                                    focusRequester.requestFocus()
+                                }
+                            )
+
+                            TextField(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .focusRequester(focusRequester)
+                                    .then(
+                                        Modifier.padding(5.dp)
+                                    )
+                                    .background(
+                                        Color.Black,
+                                        RoundedCornerShape(10.dp)
+                                    ),
+                                shape= RoundedCornerShape(10.dp),
+                                colors = TextFieldDefaults.colors(
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                ),
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Person,
+                                        contentDescription = "",
+                                        modifier = Modifier
+                                            .size(35.dp)
+                                            .clip(CircleShape)
+                                            .background(Color.Blue)
+                                    )
+                                },
+                                value = post.description.toString(),
+                                onValueChange = { values ->
+                                    post = post.copy(description = values)
+                                },
+                                label = {
+                                    Text(text = "Tell your story")
+                                },
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Text,
+                                    imeAction = ImeAction.Done
+                                ),
+                            )
+
                         }
                     )
-
-                    Spacer(modifier = Modifier.height(5.dp))
-                    DisposableEffect(
-                        key1 = Unit,
-                        effect = {
-                            onDispose {
-                                keyboardController?.hide()
-                            }
-                        }
-                    )
-                    LaunchedEffect(
-                        key1 = Unit,
-                        block = {
-                            focusRequester.requestFocus()
-                        }
-                    )
-
-                    TextField(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .focusRequester(focusRequester)
-                            .then(Modifier.padding(5.dp))
-                            .background(Color.Transparent),
-                        shape= RoundedCornerShape(0.dp),
-                        colors = TextFieldDefaults.colors(
-                            focusedIndicatorColor = Color.White,
-                            unfocusedIndicatorColor = Color.Transparent,
-                        ),
-                        value = post.description.toString(),
-                        onValueChange = { values ->
-                            post = post.copy(description = values)
-                        },
-                        label = {
-                            Text(text = "Tell your story")
-                        },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Done
-                        ),
-                    )
-
                     Spacer(modifier = Modifier.height(20.dp))
 
                     if (contentCollection.isNotEmpty()){
@@ -175,19 +175,18 @@ fun upload(
                             content = {
                                 items(contentCollection.size){index->
                                     val uri = contentCollection[index]
-                                    if (uri != null){
-                                        AsyncImage(
-                                            model = uri,
-                                            modifier = Modifier
-                                                .height(400.dp)
-                                                .fillMaxWidth(),
-                                            contentScale = ContentScale.None,
-                                            contentDescription = "content image"
-                                        )
-                                    }
+                                    AsyncImage(
+                                        model = uri,
+                                        modifier = Modifier
+                                            .height(400.dp)
+                                            .fillMaxWidth(),
+                                        contentScale = ContentScale.None,
+                                        contentDescription = "content image"
+                                    )
                                 }
                             }
                         )
+
                         Button(
                             onClick = {
                                 isPost = true
@@ -222,4 +221,12 @@ fun upload(
             )
         }
     )
+}
+
+@Composable
+fun textViewInput(
+    story : String,
+    onStoryChange : (String) -> Unit
+){
+    TextField(value = story, onValueChange = onStoryChange)
 }
