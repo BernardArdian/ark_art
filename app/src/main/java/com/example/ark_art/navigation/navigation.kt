@@ -3,8 +3,6 @@ package com.example.ark_art.navigation
 import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,15 +24,11 @@ import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material3.Switch
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.twotone.Settings
-import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -57,11 +51,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -73,14 +63,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.ark_art.R
+import com.example.ark_art.model.data.BottomBarScreen
+import com.example.ark_art.model.data.DrawerItemContent
+import com.example.ark_art.model.viewmodel.AuthenticationsViewModel
+import com.example.ark_art.navigation.navigation_component.AuthenticateNavigation
 import com.example.ark_art.navigation.navigation_component.main_page
 import com.example.ark_art.navigation.navigation_component.nestedNav
 import kotlinx.coroutines.launch
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "RememberReturnType")
 @Composable
 fun NavigationContent(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    authViewModel : AuthenticationsViewModel
 ){
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     var selectedItemIndex by remember {
@@ -186,8 +180,8 @@ fun NavigationContent(
                                 }
                             )
                         },
-                        content = {
-                            Spacer(modifier = Modifier.padding(200.dp))
+                        content = { paddingValues->
+                            Spacer(modifier = Modifier.padding(paddingValues))
                             Column(
                                 modifier = Modifier
                                     .padding(
@@ -238,13 +232,17 @@ fun NavigationContent(
                 bottomBar = {
                     BottomNavigationBar(navController)
                 },
-                content = {
+                content = { paddingValues ->
                     NavHost(
-                        modifier = Modifier.padding(bottom = 45.dp),
+                        modifier = Modifier.padding(paddingValues),
                         navController = navController,
                         startDestination = nestedNav.NestedRoutes.Main.name
                     ){
-                        main_page(navController = navController)
+                        AuthenticateNavigation(
+                            navController = navController,
+                            authViewModel = authViewModel
+                        )
+                        main_page(navController = navController,)
                     }
                 }
             )
@@ -364,22 +362,8 @@ fun RowScope.AddItem(
     )
 }
 
-data class BottomBarScreen(
-    val route: String,
-    val title: String,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector
-)
-
-data class DrawerItemContent(
-    val route : String,
-    val title :String,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector,
-)
-
 @Preview
 @Composable
 fun NavView() {
-    NavigationContent()
+    NavigationContent(authViewModel = AuthenticationsViewModel())
 }

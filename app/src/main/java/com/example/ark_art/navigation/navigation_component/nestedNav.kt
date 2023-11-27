@@ -19,6 +19,7 @@ sealed class nestedNav{
 
     enum class NestedRoutes {
         Main,
-        Login
+        Authentications,
+        Main_Home,
     }
 }

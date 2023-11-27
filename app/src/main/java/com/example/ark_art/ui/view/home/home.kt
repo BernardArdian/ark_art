@@ -28,18 +28,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.rounded.AccountCircle
-import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.twotone.AccountCircle
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
@@ -49,8 +46,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -60,7 +55,6 @@ import com.example.ark_art.model.viewmodel.HomeViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import com.example.ark_art.R
 import java.text.SimpleDateFormat
 
@@ -85,10 +79,8 @@ fun Home(
             viewModel.fetchStorageCollections()
         }
     )
-
     Scaffold(
-        modifier = Modifier
-            .padding(bottom = 15.dp),
+        modifier = Modifier,
         topBar = {
             Row(
                 modifier = Modifier
@@ -361,7 +353,7 @@ fun ContentCollections(
                                     Text(
                                         color = Color.Black,
                                         fontSize = 15.sp,
-                                        text = dateTime
+                                        text = dateTime,
                                     )
                                 }
                             )

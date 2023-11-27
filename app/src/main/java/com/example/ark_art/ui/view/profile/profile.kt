@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,6 +38,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -56,22 +58,24 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.ark_art.R
 import com.example.ark_art.model.viewmodel.HomeViewModel
+import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Profile(
-    //viewModel : HomeViewModel = HomeViewModel()
+    viewModel : HomeViewModel = HomeViewModel()
 ){
 
+    val firestoreData by viewModel.storeCollections.collectAsState()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
-//    LaunchedEffect(
-//        key1 = viewModel.storageCollections,
-//        block = {
-//            viewModel.fetchStorageCollections()
-//        }
-//    )
+    LaunchedEffect(
+        key1 = viewModel.storageCollections,
+        block = {
+            viewModel.fetchStorageCollections()
+        }
+    )
 
     Scaffold(
         modifier = Modifier
@@ -175,13 +179,22 @@ fun Profile(
                             )
                         }
                     )
-                    item {
-                        profileTabsPage(
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .fillMaxWidth()
-                        )
-                    }
+
+                   items(
+                       items = firestoreData,
+                       key = {document ->
+                           document.id
+                       },
+                       itemContent = {document ->
+                           profileTabsPage(
+                               viewModel,
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .fillMaxWidth(),
+                                description = document["description"] as String
+                            )
+                       }
+                   )
                 }
             )
         }
@@ -192,8 +205,9 @@ fun Profile(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun profileTabsPage(
-    navHostController: NavHostController = NavHostController(context = LocalContext.current),
-    modifier: Modifier = Modifier
+    viewModel: HomeViewModel = HomeViewModel(),
+    modifier: Modifier = Modifier,
+    description: String
 ){
 
     val tabItem = listOf(
@@ -277,7 +291,10 @@ fun profileTabsPage(
         state = pagerState,
         pageContent = { page->
             when(page){
-                0 -> PostPage()
+                0 -> PostPage(
+                    viewModel = viewModel,
+                    description = description
+                )
                 1 -> SavePage()
             }
         }
@@ -285,7 +302,10 @@ fun profileTabsPage(
 }
 
 @Composable
-fun PostPage(){
+fun PostPage(
+    viewModel: HomeViewModel = HomeViewModel(),
+    description : String
+){
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -295,7 +315,7 @@ fun PostPage(){
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         content = {
-            Text(text = "Post Ui Page")
+            Text(text = description)
         }
     )
 }

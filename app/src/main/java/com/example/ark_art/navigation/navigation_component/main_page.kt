@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -15,10 +16,9 @@ import com.example.ark_art.ui.view.profile.Profile
 fun NavGraphBuilder.main_page(
     navController: NavHostController,
 ) {
-
     navigation(
         startDestination = nestedNav.HomeRoutes.Home.name,
-        route=  nestedNav.NestedRoutes.Main.name
+        route=  nestedNav.NestedRoutes.Main_Home.name
     ){
         composable(
             route = nestedNav.HomeRoutes.Home.name,
